@@ -1,13 +1,10 @@
-const webpack = require('webpack');
-
 module.exports = {
-  devtool: 'eval',
   module: {
     rules: [
       {
         test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        loader: 'babel-loader'
       }
     ]
   }
