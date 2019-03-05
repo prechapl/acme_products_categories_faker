@@ -1,20 +1,36 @@
 import React from 'react';
+import ProductList from './ProductList';
 
-const List = ({ categories, products, destroyProduct, destroyCategory }) => {
+const List = ({
+  categories,
+  products,
+  destroyProduct,
+  destroyCategory,
+  createProduct
+}) => {
+  const productsByCategory = id => {
+    return products.filter(product => product.categoryId === id);
+  };
+
   return (
     <ul>
-      {
-        categories.map( category => {
-          const catsProducts = products.filter(product => product.catgeoryId === category.id)
-          return (
-            <li key={ category.id }>
-              { category.name }
-              <button onClick={() => destroyCategory(category.id)}>Delete Category</button>
-              <ProductList products={catsProducts.id} destroyProduct={destroyProduct} />
-            </li>
-          );
-        })
-      }
+      {categories.map(({ id, name }) => (
+        <li key={id}>
+          {name}
+          <div>
+            <span>
+              <button onClick={() => createProduct(id)}>Add Product</button>
+              <button onClick={() => destroyCategory(id)}>
+                Delete Category
+              </button>
+            </span>
+          </div>
+          <ProductList
+            products={productsByCategory(id)}
+            destroyProduct={destroyProduct}
+          />
+        </li>
+      ))}
     </ul>
   );
 };

@@ -1,51 +1,48 @@
-const express = require('express')
-const app = express()
-const { Product, Category} = require('./db');
+const express = require('express');
+const app = express();
+const { Product, Category } = require('./db');
 const path = require('path');
 
+app.get('/app.js', (req, res, next) =>
+  res.sendFile(path.join(__dirname, 'dist', 'main.js')));
 
-app.get('/app.js', (req, res, next) => res.sendFile(path.join(__dirname, 'dist', 'main.js')));
+app.get('/', (req, res, next) =>
+  res.sendFile(path.join(__dirname, 'index.html')));
 
-app.get('/', (req, res, next ) => res.sendFile(path.join(__dirname, 'index.html')));
-
-app.get('/api/categories', ( req, res, next ) => {
-  Category.findAll()
-    .then( categories => res.send(categories))
-    .catch(next)
+app.get('/api/categories', async (req, res, next) => {
+  const allCategories = await Category.findAll();
+  const allProducts = await Product.findAll();
+  const data = {
+    categories: allCategories,
+    products: allProducts
+  };
+  res.send(data);
+  next();
 });
 
-app.get('/api/products', ( req, res, next ) => {
-  Product.findAll()
-    .then(products => res.send(products))
-    .catch(next)
-});
-
-app.post('/api/categories', ( req, res, next ) => {
+app.post('/api/categories', (req, res, next) => {
   Category.createFake()
-    .then( category => res.send(category))
+    .then(category => res.send(category))
     .catch(next);
 });
 
-app.post('/api/categories/:id/products', ( req, res, next ) => {
-  Product.createFake()
-    .then( product => res.send(product))
-    .catch(next);
+app.post('/api/categories/:id/products', async (req, res, next) => {
+  const parentCat = await Category.findOne({ where: { id: req.params.id } });
+  const newProduct = await parentCat.createProduct();
+  res.send(newProduct);
 });
 
-app.delete('/api/categories/:id', ( req, res, next ) => {
-  Category.destroy({
-    where: { id: req.params.id }
-  })
-  .then( () => res.sendStatus(204))
-  .catch(next);
+app.delete('/api/categories/:id', async (req, res, next) => {
+  await Product.destroy({ where: { categoryId: req.params.id } });
+  await Category.destroy({ where: { id: req.params.id } });
+  res.sendStatus(204);
+  next();
 });
 
-app.delete('/api/products/:id', ( req, res, next ) => {
-  Product.destroy({
-    where: { id: req.params.id }
-  })
-  .then( () => res.sendStatus(204))
-  .catch(next);
+app.delete('/api/products/:id', async (req, res, next) => {
+  await Product.destroy({ where: { id: req.params.id } });
+  res.sendStatus(204);
+  next();
 });
 
-module.exports = app
+module.exports = app;

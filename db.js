@@ -18,34 +18,34 @@ const Product = conn.define('product', {
 Category.hasMany(Product);
 // Product.belongsTo(Category)
 
-Category.createFake = function(){
-  return this.create({ name: faker.commerce.department()});
-}
+Category.createFake = function() {
+  return this.create({ name: faker.commerce.department() });
+};
 
-// const randomCategory = faker.commerce.department();
-// console.log('randomCategory; ', randomCategory);
-
-// const randomProduct = faker.commerce.productName();
-// console.log('randomProduct: ', randomProduct);
+Category.prototype.createProduct = function() {
+  return Product.create({
+    name: faker.commerce.productName(),
+    categoryId: this.id
+  });
+};
 
 const categoryNames = ['Foo', 'Bar', 'Bazz'];
 
 const syncAndSeed = () => {
-  return conn.sync({ force: true })
-    .then(async () => {
-      const [Foo, Bar, Baz] = await Promise.all(
+  return conn.sync({ force: true }).then(async () => {
+    const [Foo, Bar, Baz] = await Promise.all(
       categoryNames.map(name => Category.create({ name }))
     );
     await Promise.all([
       Product.create({ name: 'Foo Product', categoryId: Foo.id }),
       Product.create({ name: 'Bar Product', categoryId: Bar.id }),
       Product.create({ name: 'Baz Product', categoryId: Baz.id })
-    ])
+    ]);
   });
 };
 
 module.exports = {
-syncAndSeed,
-Product,
-Category
-}
+  syncAndSeed,
+  Product,
+  Category
+};
