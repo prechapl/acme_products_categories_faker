@@ -1,15 +1,15 @@
 const app = require('./app.js')
-const syncAndSeed = require('./db.js')
+const db = require('./db')
 
 const PORT = process.env.PORT || 3000;
 
-syncAndSeed()
+db.syncAndSeed()
   .then(() => {
     app.listen(PORT, () => {
       console.log(`listening on port ${PORT}`);
     });
   })
   .catch((e) => {
-    console.log(e)
-  })
+    console.log(e);
+  });
 

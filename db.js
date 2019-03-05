@@ -18,6 +18,10 @@ const Product = conn.define('product', {
 Category.hasMany(Product);
 // Product.belongsTo(Category)
 
+Category.createFake = function(){
+  return this.create({ name: faker.commerce.department()});
+}
+
 // const randomCategory = faker.commerce.department();
 // console.log('randomCategory; ', randomCategory);
 
@@ -32,14 +36,16 @@ const syncAndSeed = () => {
       const [Foo, Bar, Baz] = await Promise.all(
       categoryNames.map(name => Category.create({ name }))
     );
-
     await Promise.all([
       Product.create({ name: 'Foo Product', categoryId: Foo.id }),
       Product.create({ name: 'Bar Product', categoryId: Bar.id }),
       Product.create({ name: 'Baz Product', categoryId: Baz.id })
     ])
-
   });
 };
 
-module.exports = syncAndSeed
+module.exports = {
+syncAndSeed,
+Product,
+Category
+}
